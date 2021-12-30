@@ -7,38 +7,64 @@
 
 #include "BINARY_search.h"
 
+/**************************************************************/
+/*                                                            */
+/*                    Functions Definitions                   */
+/*                                                            */
+/**************************************************************/
+
+
 int8_t binarySearch (uint32_t* arr, uint8_t size, uint32_t number)
 {
-	uint8_t u8_Mid, u8_Start, u8_End;
+	uint8_t u8_Mid, u8_Start, u8_End, u8_Index, u8_arrSorted;
 	
-	bubbleSort(arr, size);
-	u8_Start = 0;
-	u8_End   = size - 1;
-	u8_Mid   = ( (u8_Start + u8_End) / 2 );
-	if (number < arr[0] || number > arr[size - 1])
+	for ( u8_Index = 0 ; u8_Index < size - 1 ; u8_Index ++ )
 	{
-		return -1;
+		if ( arr[u8_Index] > arr[u8_Index + 1] )
+		{
+			u8_arrSorted = FALSE;
+			break;
+		}
+		else 
+			u8_arrSorted = TRUE;
 	}
-	else
+	
+	if ( !u8_arrSorted )
 	{
-	    while (u8_Start <= u8_End)
+	    bubbleSort(arr, size);
+		u8_arrSorted = TRUE;
+	}
+	
+	if ( u8_arrSorted )
+	{
+	    u8_Start = 0;
+	    u8_End   = size - 1;
+	    u8_Mid   = ( (u8_Start + u8_End) / 2 );
+	    if (number < arr[0] || number > arr[size - 1])
 	    {
-	        if (arr[u8_Mid] == number)
-	        {
-		        return u8_Mid;
-	        }
-	        else if (number > arr[u8_Mid])
-	        {
-		        u8_Start = u8_Mid + 1;
-		        u8_Mid   = ( (u8_Start + u8_End) / 2 );
-	        }
-	        else
-	        {
-		        u8_End = u8_Mid - 1;
-		        u8_Mid = ( (u8_Start + u8_End) / 2 );
-	        }
+		    return -1;
 	    }
-	    return -1;
+	    else
+	    {
+	        while (u8_Start <= u8_End)
+	        {
+	            if (arr[u8_Mid] == number)
+	            {
+		            return u8_Mid;
+	            }
+	            else if (number > arr[u8_Mid])
+	            {
+		            u8_Start = u8_Mid + 1;
+		            u8_Mid   = ( (u8_Start + u8_End) / 2 );
+	            }
+	            else
+	            {
+		            u8_End = u8_Mid - 1;
+		            u8_Mid = ( (u8_Start + u8_End) / 2 );
+	            }
+	        }
+	        return -1;
+	    }
 	}
 }
 
@@ -61,14 +87,66 @@ void bubbleSort (uint32_t* au32_Arr, uint8_t u8_Size)
 	}
 }
 
+uint8_t check_input_is_digit (uint8_t* u8_Line)  
+{
+	uint32_t u32_LiteralIndex;
+	
+	for(u32_LiteralIndex = 0 ; u32_LiteralIndex < strlen(u8_Line)-1 ; u32_LiteralIndex++)
+	{
+		if ( !( ( *(u8_Line+u32_LiteralIndex) >='0')	&& ( *(u8_Line+u32_LiteralIndex) <= '9' ) ) )
+		{
+			return 0;
+		}
+	}
+	
+    return 1;
+}
+
+uint16_t extract_numbers (uint8_t* u8_Line)
+{
+	uint8_t u8_Index, u8_Number, u8_Weight;
+	uint16_t u16_Sum = 0;
+	u8_Weight        = strlen(u8_Line) - 2;
+	for(u8_Index = 0 ; u8_Index < strlen(u8_Line) - 1 ; u8_Index++)
+	{
+	    u8_Number = ( (u8_Line[u8_Index] - 48 ) );
+	    u16_Sum += ( u8_Number * pow(10, u8_Weight) ); 
+		u8_Weight --;
+    }
+	return u16_Sum;
+}
+/**************************************************************/
+/*                                                            */
+/*                    End Of Section                          */
+/*                                                            */
+/**************************************************************/
+
 uint8_t main()
 {
-	uint8_t u8_Size, u8_Counter, u8_Index;
+	uint8_t   u8_Size, u8_Counter, u8_Index, u8_sizeSelected = FALSE;
+	uint8_t   u8_Line[10];
+	uint16_t  u16_number;
 	uint32_t* au32_Arr;
-	uint32_t u32_Number, u32_SearchNumber;
-	printf("\nEnter the size of the array: ");
-	scanf("%d",&u8_Size);
-	au32_Arr = (uint32_t*) malloc(u8_Size * sizeof(uint32_t));
+	uint32_t  u32_Number, u32_SearchNumber;
+	
+	while (!u8_sizeSelected)
+	{
+	    printf("\nEnter the size of the array: ");
+	    fflush(stdin);
+		fgets(u8_Line,sizeof(u8_Line),stdin);
+		if(check_input_is_digit(u8_Line))
+		{
+			u16_number = extract_numbers(u8_Line);
+		    if (u16_number <= 255)
+	        {
+				u8_Size = u16_number;
+			    u8_sizeSelected = TRUE;
+	            au32_Arr = (uint32_t*) malloc(u8_Size * sizeof(uint32_t));
+	        }
+			else 
+				printf("\nEntered size must be less than 256");
+		}			
+	}
 	for(u8_Counter = 0 ; u8_Counter < u8_Size ; u8_Counter++)
 	{
 		printf("\nEnter element number %d: ",u8_Counter+1);
